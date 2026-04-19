@@ -55,6 +55,13 @@ Glob and read — but report raw findings only, not interpretations:
 
 Present findings like: *"Found `src/services/payment/`. Found `docs/adr/0001-...md` (status: accepted). Found 4 files in `likec4/`. Existing brief from 2026-04-12 covers domain + 3 components."* No interpretation yet.
 
+**Then offer live diagram mode (opt-in):**
+
+> "Want live diagram mode? I'll run `npx likec4 start` in the background and update `likec4/model.c4` after each confirmed component and relationship. The diagram refreshes in your browser as we go — much better than text confirmation for spotting wrong relationships. Requires LikeC4 in your dev deps (`npx likec4 --version` works) and a free port (default 5173). yes / no / skip"
+
+- **If no / skip:** continue with text-only discovery; `/c4-model` runs at handoff.
+- **If yes:** see the **Live diagram mode** section below for pre-flight, scaffolding, and lifecycle. Do not start the server until pre-flight checks pass.
+
 ### 2. Confirm domain (ask, don't guess)
 
 Do **not** infer business domain from code. Ask:
@@ -73,7 +80,11 @@ Then go through the candidates you glimpsed in the code **one by one**. Never li
 
 > "I see `src/services/payment/`. Is 'Payment' a top-level component (a runnable unit) of this system? If yes, what's its one-sentence responsibility, and what's the tech stack?"
 
-Wait. Confirm or correct. **Append the confirmed component to `docs/architecture/discovery-brief.md` under `## Components` immediately** (show the diff). Move to the next. Build the list incrementally — both in conversation AND in the file.
+Wait. Confirm or correct. **Append the confirmed component to `docs/architecture/discovery-brief.md` under `## Components` immediately** (show the diff).
+
+**If live diagram mode is on:** also append the component to `likec4/model.c4` as a `container` inside the system-in-focus block (see Live diagram mode section for exact DSL form). Tell the architect: "Refresh the browser — `<Name>` is now in the diagram." Then move to the next.
+
+Move to the next. Build the list incrementally — in conversation, in the brief, and (if live mode) in the diagram.
 
 ### 4. Confirm relationships, with descriptions
 
@@ -84,6 +95,8 @@ For each relationship the code suggests (imports, API calls, message topics, DB 
 Every confirmed relationship needs a **human-written one-line description**. No description → not confirmed.
 
 **Append each confirmed relationship to `docs/architecture/discovery-brief.md` under `## Relationships` immediately** (show the diff). Source → target, the description, and the protocol/transport.
+
+**If live diagram mode is on:** also append the relationship to `likec4/model.c4` as `<source> -[<kind>]-> <target> "<description>"` (see Live diagram mode section for kind selection). Tell the architect: "Refresh — `<source> → <target>` is now drawn."
 
 ### 5. Confirm existing ADRs
 
@@ -158,6 +171,12 @@ The architectural characteristic and decision-maker entries also go to `docs/arc
 
 Only when components + relationships + descriptions are `CONFIRMED` (and visible in the brief), say:
 
+**If live diagram mode was on this session:** the LikeC4 model is already at `likec4/model.c4`, populated incrementally as we confirmed each element, and rendering in the browser. Tell the architect:
+
+> "Live model is at `likec4/model.c4` and showing in the browser. The server is still running (process started in this session). Run `/c4-model` to: validate the model (`npx likec4 validate`), add a scoped Container view if not yet present, and check for drift against existing ADRs. Stop the live server with `TaskStop` or just close the terminal."
+
+**If live mode was not on:** say:
+
 > "You have [no / an existing] C4 model. The confirmed element list and relationships are in `docs/architecture/discovery-brief.md`. Run `/c4-model` to turn them into a LikeC4 model — it will build Context and Container views (and Deployment if we have that info). View the result with `npx likec4 start`."
 
 `/c4-model` reads the brief directly — no need to paste content over.
@@ -180,6 +199,122 @@ Reference `docs/architecture/open-questions.md` if any OPEN or PARKED items were
 [UNKNOWN] Team size
 [PARKED] Regulatory constraints (architect said "not relevant to this decision")
 ```
+
+---
+
+## Live diagram mode (opt-in)
+
+This mode renders a LikeC4 diagram in the browser and updates it as each element and relationship is confirmed. Designed to match the workflow many architects already use: start with a rough diagram, ask questions, fill it in together. Visual confirmation catches wrong relationships much faster than re-reading text.
+
+**Activation:** the architect opts in at the end of phase 1. Default off.
+
+**Pre-flight checks (do all before starting the server):**
+
+1. Run `npx likec4 --version`. If it errors:
+   > "LikeC4 isn't installed in this project. Install with `npm i -D likec4` (or `npm i -g likec4` for global), then opt in again. Skipping live mode for now."
+   Continue with text-only discovery.
+
+2. Check port 5173 is free (default LikeC4 dev server port). If not, ask:
+   > "Port 5173 is in use. Free it, or shall I start LikeC4 on another port (e.g., `--port 5174`)?"
+
+3. Verify `likec4/` directory or scaffold it (next step).
+
+**Scaffolding (if no LikeC4 model exists):**
+
+Create `likec4/model.c4` with the canonical-C4 specification block AND an empty system-in-focus stub. Use the architect's confirmed system name (from phase 2 — wait if not yet confirmed):
+
+```likec4
+specification {
+  element actor          { style { shape person } }
+  element externalSystem { style { shape rectangle; color secondary } }
+  element system         { style { shape rectangle } }
+  element container      { style { shape rectangle } }
+  relationship uses      { line solid }
+  relationship reads     { line solid }
+  relationship writes    { line solid }
+  relationship publishes { color amber; line dotted; head diamond }
+  relationship consumes  { color amber; line dotted; tail vee }
+}
+
+model {
+  // External actors and systems will be added at this level
+  // The system-in-focus contains the project's containers
+
+  <system_id> = system "<System Name>" {
+    description "<one-sentence purpose from brief>"
+    // containers will be added here as we confirm them
+  }
+}
+```
+
+Plus `likec4/views.c4`:
+
+```likec4
+views {
+  view index {
+    title "System Context"
+    include *
+  }
+}
+```
+
+Plus minimal `likec4.config.js`:
+
+```js
+/** @type {import('likec4').LikeC4Config} */
+export default { name: '<system-name>' }
+```
+
+**Start the server:**
+
+Run `npx likec4 start` as a background process. Capture the URL (typically `http://localhost:5173`). Tell the architect:
+
+> "Live diagram running at <URL>. The model is empty so far — just the system-in-focus shell. As we confirm each component and relationship, I'll write to `likec4/model.c4` and you can refresh (it auto-reloads on file change). Background process ID: <id>. Stop with `TaskStop` or close the terminal."
+
+**Incremental writes during discovery:**
+
+- **Phase 3 — confirmed component:** append inside the system block:
+  ```likec4
+  <id> = container "<Name>" {
+    description "<one-sentence responsibility>"
+    technology "<stack>"
+  }
+  ```
+  Say: "Refresh — `<Name>` is in the diagram now."
+
+- **Phase 3 — confirmed external actor or external system:** append at top level of the `model` block (NOT inside the system):
+  ```likec4
+  <id> = actor "<Name>" { description "<one-sentence>" }
+  // or
+  <id> = externalSystem "<Name>" { description "<one-sentence>" }
+  ```
+
+- **Phase 4 — confirmed relationship:** choose the kind by what flows:
+  - Generic call/use → `uses`
+  - DB read → `reads`
+  - DB write → `writes`
+  - Async produces a message → `publishes`
+  - Async consumes a message → `consumes`
+
+  Append in the appropriate scope (intra-system → inside the system block; cross-boundary → top level):
+  ```likec4
+  <source> -[<kind>]-> <target> "<description>"
+  ```
+  Say: "Refresh — `<source> → <target>` is drawn."
+
+**What live mode does NOT do during discovery:**
+
+- Does **not** run `npx likec4 validate` — the model is intentionally incomplete throughout. Validation runs at handoff to `/c4-model`.
+- Does **not** add a scoped Container view (`view containers of <system>`) — `/c4-model` handles that at handoff (or earlier, if the architect asks).
+- Does **not** add styling, themes, or layout. Same canonical-C4 refusals as `/c4-model`.
+
+**Refusals (same as `/c4-model`):**
+
+If the architect asks during live mode for a Component view, custom element kind, dynamic view, multiple `system` elements, etc., refuse with the scripted message from `/c4-model`. Live mode follows canonical C4 like the rest of the family.
+
+**Lifecycle at handoff or session end:**
+
+The background `npx likec4 start` process keeps running. At handoff (phase 8) or session end, remind the architect how to stop it (`TaskStop` in the Claude Code session, or close the terminal). Do not silently kill it — they may want to keep the diagram up while reviewing.
 
 ---
 
