@@ -226,7 +226,7 @@ Create `likec4/model.c4` with the canonical-C4 specification block AND an empty 
 ```likec4
 specification {
   element actor          { style { shape person } }
-  element externalSystem { style { shape rectangle; color secondary } }
+  element externalSystem { style { shape rectangle; color gray } }
   element system         { style { shape rectangle } }
   element container      { style { shape rectangle } }
   relationship uses      { line solid }
@@ -234,6 +234,12 @@ specification {
   relationship writes    { line solid }
   relationship publishes { color amber; line dotted; head diamond }
   relationship consumes  { color amber; line dotted; tail vee }
+
+  // Tag for elements/relationships with unresolved open questions.
+  // Renders red + dashed via the style rule in views.
+  tag open-question {
+    color red
+  }
 }
 
 model {
@@ -254,6 +260,10 @@ views {
   view index {
     title "System Context"
     include *
+    style element.tag = #open-question {
+      color red
+      border dashed
+    }
   }
 }
 ```
@@ -301,6 +311,33 @@ Run `npx likec4 start` as a background process. Capture the URL (typically `http
   <source> -[<kind>]-> <target> "<description>"
   ```
   Say: "Refresh — `<source> → <target>` is drawn."
+
+**Open-question tagging on the diagram:**
+
+When the architect can't fully confirm an element or relationship — they accept it exists but don't know its responsibility, technology, or kind — log an open question (see Open-Questions mechanism) AND tag the element/relationship with `#open-question` so it shows up red + dashed on the diagram. The architect can see at a glance what's still pending.
+
+Examples:
+
+```likec4
+// Architect confirms Payment exists but isn't sure of responsibility:
+payment = container "Payment" {
+  #open-question
+  description "OPEN Q3: responsibility unclear — see open-questions.md"
+}
+
+// Architect confirms Order calls Payment but isn't sure if sync or async:
+order -[uses]-> payment "OPEN Q4: sync REST or async event?" {
+  #open-question
+}
+```
+
+When a question is later resolved (architect comes back with the answer, or live in the same session):
+1. Update `docs/architecture/open-questions.md` (mark `ANSWERED`).
+2. Remove the `#open-question` tag from the element/relationship in `likec4/model.c4`.
+3. Replace the `OPEN Q<N>:` description with the confirmed text.
+4. Tell the architect: "Refresh — `<Name>` is no longer flagged."
+
+This pattern is the visual companion to the open-questions file: the file is the canonical record, the red+dashed rendering is the at-a-glance signal.
 
 **What live mode does NOT do during discovery:**
 

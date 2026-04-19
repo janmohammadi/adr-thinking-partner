@@ -50,7 +50,7 @@ specification {
   }
   element externalSystem {
     notation "External System"
-    style { shape rectangle; color secondary }
+    style { shape rectangle; color gray }
   }
   element system {
     notation "System"
@@ -67,8 +67,27 @@ specification {
   relationship publishes  { color amber; line dotted; head diamond }
   relationship consumes   { color amber; line dotted; tail vee }
 
+  // Tag for elements/relationships with unresolved open questions.
+  // Renders red + dashed via the style rule in views (see views block).
+  tag open-question {
+    color red
+  }
+
   deploymentNode environment { notation "Environment" }
   deploymentNode node        { notation "Node" }
+}
+```
+
+**Open-question tagging convention:** when an element or relationship has an unresolved open question recorded in `docs/architecture/open-questions.md`, tag it with `#open-question` and prefix the `description` with `OPEN Q<N>:` (where `<N>` matches the question number in `open-questions.md`). When the question is resolved, remove the tag and replace the description with the confirmed text. Example:
+
+```likec4
+payment = container "Payment" {
+  #open-question
+  description "OPEN Q3: responsibility unclear — see open-questions.md"
+}
+
+order -[uses]-> payment "OPEN Q4: kind unclear (sync REST or async event?)" {
+  #open-question
 }
 ```
 
@@ -179,19 +198,27 @@ model {
 }
 ```
 
-**`views`** — exactly one Context view, one Container view, optionally one Deployment view:
+**`views`** — exactly one Context view, one Container view, optionally one Deployment view. Both views must include the `#open-question` style rule so tagged elements/relationships render red + dashed:
 
 ```likec4
 views {
   view index {
     title "System Context"
     include *
+    style element.tag = #open-question {
+      color red
+      border dashed
+    }
   }
 
   view containers of shop {
     title "Containers"
     include *
     autoLayout LeftRight
+    style element.tag = #open-question {
+      color red
+      border dashed
+    }
   }
 }
 ```
@@ -233,6 +260,9 @@ CANONICAL-C4 LINT
 [ ] every `->` or `-[kind]->` has a description string
 [ ] every container lives inside the system-in-focus (not at the top level)
 [ ] zero custom relationship kinds beyond uses/reads/writes/publishes/consumes
+[ ] specification declares `tag open-question { color red }`
+[ ] every view includes `style element.tag = #open-question { color red; border dashed }`
+[ ] external systems use `color gray` (not `secondary` or other)
 ```
 
 Print the result explicitly: `canonical-C4 lint: PASS` or `canonical-C4 lint: FAIL (N violations)` with each violation listed.
