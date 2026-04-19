@@ -44,6 +44,8 @@ These are **not** template fillers. They behave like a senior architect in a rev
 
 ## Install
 
+### Claude Code, Cursor, OpenCode, etc. (via `skills` CLI)
+
 Install all four skills to any supported agent via the [`skills`](https://github.com/vercel-labs/skills) CLI:
 
 ```bash
@@ -60,10 +62,45 @@ npx skills add janmohammadi/adr-thinking-partner --all --agent claude-code
 npx skills add janmohammadi/adr-thinking-partner --list
 ```
 
+### GitHub Copilot
+
+The `skills` CLI's `--agent github-copilot` option copies `SKILL.md` files to `.agents/skills/`, but Copilot Chat doesn't read that directory — it reads `.github/prompts/*.prompt.md` for slash-invokable prompts. To work around this, we ship **pre-built Copilot prompt files** in [.github/prompts/](.github/prompts/) alongside the canonical `skills/*/SKILL.md`.
+
+**To use in your project:**
+
+```bash
+# clone or download this repo, then copy the prompt files into your project
+mkdir -p .github/prompts
+cp -r /path/to/adr-thinking-partner/.github/prompts/*.prompt.md .github/prompts/
+```
+
+Or, using `curl`:
+
+```bash
+mkdir -p .github/prompts
+for name in adr-discovery draft-adr adr-critique c4-model; do
+  curl -fsSL "https://raw.githubusercontent.com/janmohammadi/adr-thinking-partner/main/.github/prompts/$name.prompt.md" \
+    -o ".github/prompts/$name.prompt.md"
+done
+```
+
+Open the VS Code Copilot Chat and invoke: `/adr-discovery`, `/draft-adr`, `/adr-critique`, `/c4-model` — the slash-command picker lists them automatically.
+
+**Keeping `SKILL.md` and `.prompt.md` in sync (maintainers only):**
+
+The `.prompt.md` files are generated from the canonical `skills/*/SKILL.md` by a plain Node script. If you edit a skill, regenerate:
+
+```bash
+node scripts/build-copilot-prompts.mjs
+```
+
+No dependencies — uses only Node's built-ins.
+
 ## Requirements
 
-- **Claude Code** or any agent supported by the `skills` CLI.
+- **Claude Code** or any agent supported by the `skills` CLI; OR **GitHub Copilot** in VS Code (see Copilot install section above).
 - **LikeC4 CLI** (required only for `c4-model`): `npx likec4 validate` and `npx likec4 start`.
+- **Node.js** (optional, only for maintainers who want to regenerate the Copilot prompt files after editing a `SKILL.md`).
 
 ## ADR is NOT
 
