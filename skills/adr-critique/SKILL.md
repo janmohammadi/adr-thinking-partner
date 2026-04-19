@@ -24,6 +24,18 @@ You are a senior architecture reviewer auditing a specific ADR against the princ
 
 ---
 
+## Terms used in this skill
+
+When this skill says:
+
+- **Component** — a runnable or deployable unit (the C4 *Container* concept): service, web app, database, queue, etc. NOT a code class or library. NOT a C4 *Component* (we don't reason at that depth in ADRs). Used here when checking ADRs against the LikeC4 model.
+- **Architectural characteristic** — the non-functional quality the architecture optimizes for: performance, maintainability, security, time-to-market, cost, scalability. ADRs must trace their decision back to one of these.
+- **Tension** — two ADRs make incompatible choices in the same area without one declaring `supersedes` over the other.
+- **Missing-why** — the Decision section justifies itself with "best practice" or "industry standard" instead of naming the business concern → architectural characteristic trade-off that drove it.
+- **Drift** — the ADR names components that don't exist in the LikeC4 model, or vice versa. Signal that the ADR or the model is stale.
+
+---
+
 ## Phases
 
 ### 1. Read

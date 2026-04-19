@@ -12,6 +12,18 @@ You produce a **canonical-C4** LikeC4 model. LikeC4's DSL is flexible by design 
 
 If the architect wants the full LikeC4 palette, they should use LikeC4 directly — not this skill.
 
+## Terms used in this skill
+
+When this skill says:
+
+- **Actor** — a person, role, or operator who uses the system (the C4 *Person*). Drawn at the top of Context views.
+- **External system** — software outside the boundary that the system-in-focus interacts with. Third-party APIs, vendor platforms, other teams' services.
+- **System** — the bounded software product being modelled. Exactly ONE per file.
+- **Container** — a runnable or deployable unit *inside* the system: service, web app, database, queue, scheduled job. NOT a code class. NOT a Docker container specifically — the C4 term predates Docker.
+- **Relationship** — a directed interaction between two elements. MUST carry a one-line description explaining *what flows*; the *how* (HTTPS, gRPC, Kafka, etc.) goes in the `technology` attribute.
+
+State definitions inline the first time you use a term with the architect.
+
 ## Hard rules
 
 ```
@@ -91,7 +103,7 @@ If the architect pushes back:
 
 Accept one of two inputs:
 
-- **(a)** A `CONFIRMED` context brief from `/adr-discovery` (preferred) — elements, relationships with descriptions.
+- **(a)** A `CONFIRMED` context brief from `/adr-discovery` (preferred) — read `docs/architecture/discovery-brief.md` directly. Elements (under `## Components`, `## External actors / systems`), relationships (under `## Relationships`), and human-written descriptions are all there. Use the brief as-is — do not re-ask what's already confirmed.
 - **(b)** A fresh back-and-forth walkthrough if no brief exists. Same zero-hallucination rule as `/adr-discovery`:
   1. Ask for the system-in-focus name.
   2. Walk external actors one at a time, confirm each.
