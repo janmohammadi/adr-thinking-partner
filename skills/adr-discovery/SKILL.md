@@ -91,15 +91,41 @@ List existing ADRs by title and status. Ask which the architect considers releva
 
 **Append each confirmed relationship to `docs/architecture/discovery-brief.md` under `## Existing ADRs relevant to current work` immediately** (show the diff).
 
-### 6. Multi-repo probe
+### 6. Multi-repo + ecosystem probe
 
-Ask directly:
+ADR decisions in one repo often depend on or affect decisions in other repos (frontend ↔ backend, shared contracts, infra, platform-level ADRs from other teams). A list of repo names isn't enough — for each one we need to know what's in it, who owns it, and whether we can read it now.
 
-> "Does this project span other repos? If yes, name them."
+**6a. Ask if the project spans other repos.**
 
-If yes: ask the architect to open the repos in the workspace or paste the key files (READMEs, manifests). Do not assume a one-repo-per-project world.
+> "Does this project span other repos? Name them."
 
-**Append the confirmed repo list to `docs/architecture/discovery-brief.md` under `## Multi-repo` immediately** (show the diff).
+**6b. For each named repo, ask one at a time:**
+
+> "For `<repo-name>`:
+> - **Role** — what does it contain? (frontend, backend service, shared library, infra/IaC, API contracts, data pipeline, docs)
+> - **Owner** — which team or person owns it?
+> - **Access** — can you grant me read access in this session (clone locally / paste key files), or should I park questions about it?
+> - **ADRs** — does it have its own ADRs that might relate to the current decision? Path?
+> - **C4 model** — does it have a LikeC4 or other architecture model I should reference?
+> - **Components owned** — which top-level components from your list live in this repo?"
+
+If access is granted: read the repo's `README.md`, `docs/adr/`, `**/*.c4`. Append findings to the brief.
+
+If access is not granted in this session: log a PARKED open question per inaccessible repo, with "Where to look" = clone URL or path, "Who to ask" = the owner.
+
+**6c. Ecosystem-level probe.**
+
+Repos aren't the only place architectural context lives. Ask:
+
+> "Outside these repos, where else does architectural context live?
+> - **Architecture overview** — Confluence/Notion page, internal wiki, system landscape doc?
+> - **Service/component registry** — Backstage, internal catalog, dependency map?
+> - **Platform / org-level ADRs** — decisions made by a platform team or architecture board that this decision must respect?
+> - **Compliance constraints** — any standards or fitness functions that apply org-wide?"
+
+For each confirmed source: log to `## Ecosystem references` in the brief. For each unanswered → PARKED open question with the wiki URL or contact as "Where to look".
+
+**Append all confirmed entries to `docs/architecture/discovery-brief.md` under `## Repos in this project` and `## Ecosystem references` immediately** (show the diff).
 
 ### 7. Checklist gate
 
@@ -195,8 +221,14 @@ confirmed.
 ## Existing ADRs relevant to current work
 - [CONFIRMED YYYY-MM-DD] ADR-NNNN — <supersedes | amends | relates-to | tension> | <reason>
 
-## Multi-repo
-- [CONFIRMED YYYY-MM-DD] Project spans: <list of repos>
+## Repos in this project
+- [CONFIRMED YYYY-MM-DD] **<repo-name>** — role: <frontend | backend | shared-lib | infra | contracts | data-pipeline | docs>; owner: <team/person>; access: <local clone | paste | none — see open-question Q#>
+  - Has ADRs: <yes (N) | no | unknown>
+  - Has C4 model: <yes | no | unknown>
+  - Owns components: <list of component names from earlier>
+
+## Ecosystem references
+- [CONFIRMED YYYY-MM-DD] **<name>** — type: <arch overview | service registry | platform ADRs | compliance>; location: <URL or path>; owner: <team/person>
 
 ## Decision-makers / governance
 - [CONFIRMED YYYY-MM-DD] <architect alone | RFC | review board>
