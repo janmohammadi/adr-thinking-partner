@@ -1,8 +1,14 @@
-# ADR Thinking-Partner Skills
+# deep-adr
 
 A family of four Claude skills that co-think Architecture Decision Records with the architect — challenging, pushing back, and refusing to write an ADR until the reasoning holds up. Designed to fix the failure mode of AI-generated ADRs stuffed with filler, hedging, and implementation detail.
 
 These are **not** template fillers. They behave like a senior architect in a review.
+
+> **Pairs with [ADR Explorer](https://github.com/janmohammadi/adr-explorer)** — once `deep-adr` has helped you produce a corpus of ADRs on disk, ADR Explorer visualizes the graph (`supersedes` / `amends` / `relates-to`), scores corpus health, surfaces stale or orphan decisions, and can distill bloat. Available as `npx adr-explorer` or as a [VS Code extension](https://marketplace.visualstudio.com/items?itemName=reza-janm.adr-explorer).
+>
+> ```text
+> deep-adr (draft + critique)  →  *.md on disk  →  ADR Explorer (visualize + audit + distill)
+> ```
 
 ## The four skills
 
@@ -50,16 +56,16 @@ Install all four skills to any supported agent via the [`skills`](https://github
 
 ```bash
 # install all four
-npx skills add janmohammadi/adr-thinking-partner --all
+npx skills add janmohammadi/deep-adr --all
 
 # install one
-npx skills add janmohammadi/adr-thinking-partner --skill draft-adr
+npx skills add janmohammadi/deep-adr --skill draft-adr
 
 # target a specific agent
-npx skills add janmohammadi/adr-thinking-partner --all --agent claude-code
+npx skills add janmohammadi/deep-adr --all --agent claude-code
 
 # list what's available without installing
-npx skills add janmohammadi/adr-thinking-partner --list
+npx skills add janmohammadi/deep-adr --list
 ```
 
 ### GitHub Copilot
@@ -71,7 +77,7 @@ The `skills` CLI's `--agent github-copilot` option copies `SKILL.md` files to `.
 ```bash
 # clone or download this repo, then copy the prompt files into your project
 mkdir -p .github/prompts
-cp -r /path/to/adr-thinking-partner/.github/prompts/*.prompt.md .github/prompts/
+cp -r /path/to/deep-adr/.github/prompts/*.prompt.md .github/prompts/
 ```
 
 Or, using `curl`:
@@ -79,7 +85,7 @@ Or, using `curl`:
 ```bash
 mkdir -p .github/prompts
 for name in adr-discovery draft-adr adr-critique c4-model; do
-  curl -fsSL "https://raw.githubusercontent.com/janmohammadi/adr-thinking-partner/main/.github/prompts/$name.prompt.md" \
+  curl -fsSL "https://raw.githubusercontent.com/janmohammadi/deep-adr/main/.github/prompts/$name.prompt.md" \
     -o ".github/prompts/$name.prompt.md"
 done
 ```
