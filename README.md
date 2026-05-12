@@ -4,6 +4,8 @@ A family of four Claude skills that co-think Architecture Decision Records with 
 
 These are **not** template fillers. They behave like a senior architect in a review.
 
+![deep-adr — four skills for Architecture Decision Records](media/images/deep-adr.png)
+
 > **Pairs with [ADR Explorer](https://github.com/janmohammadi/adr-explorer)** — once `deep-adr` has helped you produce a corpus of ADRs on disk, ADR Explorer visualizes the graph (`supersedes` / `amends` / `relates-to`), scores corpus health, surfaces stale or orphan decisions, and can distill bloat. Available as `npx adr-explorer` or as a [VS Code extension](https://marketplace.visualstudio.com/items?itemName=reza-janm.adr-explorer).
 >
 > ```text
@@ -135,6 +137,14 @@ An ADR is NOT:
 - A design doc. Implementation detail belongs in the design doc or the code.
 - Long. Context ≤ 3 sentences. Decision ≤ 3 sentences. Consequences as bullets.
 ```
+
+## Inspired by
+
+<a href="https://learning.oreilly.com/library/view/fundamentals-of-software/9781492043447/"><img src="media/images/book.jpg" alt="Fundamentals of Software Architecture" align="right" width="160"></a>
+
+The ADR philosophy baked into these skills draws heavily from **[Fundamentals of Software Architecture](https://learning.oreilly.com/library/view/fundamentals-of-software/9781492043447/)** by Mark Richards and Neal Ford (O'Reilly, 2020) — in particular **Chapter 19, "Architecture Decisions"**. The chapter's framing of ADRs as records of *why* (not *what*), its emphasis on stating consequences honestly, and its warnings against trivial or implementation-detail decisions all show up in the "ADR is NOT" checklist and the push-back behavior of `draft-adr` and `adr-critique`.
+
+If you find these skills useful, read the chapter — it explains the *reasoning* behind the rules the skills enforce.
 
 ## License
 
