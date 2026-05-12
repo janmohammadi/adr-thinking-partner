@@ -6,6 +6,14 @@ These are **not** template fillers. They behave like a senior architect in a rev
 
 ![deep-adr — four skills for Architecture Decision Records](media/images/deep-adr.png)
 
+## Quick start
+
+```bash
+npx skills add janmohammadi/deep-adr --all
+```
+
+Then invoke any skill from your agent: `/adr-discovery`, `/draft-adr`, `/adr-critique`, `/c4-model`. For GitHub Copilot or per-skill installs, see [Install](#install) below.
+
 > **Pairs with [ADR Explorer](https://github.com/janmohammadi/adr-explorer)** — once `deep-adr` has helped you produce a corpus of ADRs on disk, ADR Explorer visualizes the graph (`supersedes` / `amends` / `relates-to`), scores corpus health, surfaces stale or orphan decisions, and can distill bloat. Available as `npx adr-explorer` or as a [VS Code extension](https://marketplace.visualstudio.com/items?itemName=reza-janm.adr-explorer).
 >
 > ```text
